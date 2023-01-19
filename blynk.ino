@@ -27,31 +27,51 @@ char pass[] = "...";
 
 BlynkTimer timer;
 
-// This function is called every time the Virtual Pin 0 state changes
-BLYNK_WRITE(V0)
-{
-  // Set incoming value from pin V0 to a variable
-  int value = param.asInt();
-
-  // Update state
-  Blynk.virtualWrite(V1, value);
-}
-
-// This function is called every time the device is connected to the Blynk.Cloud
-BLYNK_CONNECTED()
-{
-  // Change Web Link Button message to "Congratulations!"
-  Blynk.setProperty(V3, "offImageUrl", "https://static-image.nyc3.cdn.digitaloceanspaces.com/general/fte/congratulations.png");
-  Blynk.setProperty(V3, "onImageUrl",  "https://static-image.nyc3.cdn.digitaloceanspaces.com/general/fte/congratulations_pressed.png");
-  Blynk.setProperty(V3, "url", "https://docs.blynk.io/en/getting-started/what-do-i-need-to-blynk/how-quickstart-device-was-made");
-}
+// Set pins
+const int trigPin1 = 1;
+const int rcvPin1 = 2;
+long duration1;
+int distance1;
 
 // This function sends Arduino's uptime every second to Virtual Pin 2.
-void myTimerEvent()
+void checkParked()
 {
-  // You can send any value at any time.
-  // Please don't send more that 10 values per second.
-  Blynk.virtualWrite(V2, millis() / 1000);
+  // Read ultrasonic sensor to determine whether
+  // a car is parked in the slot or not.
+  distance1 = checkDistance();
+  
+  // distance < 1000cm means there are object
+  // blocking the ultrasonic wave travels
+  // which means there is car parked in the slot.
+  if (distance1 < 1000) {
+    // turn on virtual LED in pin V2 if car is parked
+    // to show that the parking slot is occupied
+    Blynk.virtualWrite(V2, 1);
+  } else {
+    // turn off virtual LED in pin V2 if car is not parked
+    // to show that the parking slot is not occupied
+    Blynk.virtualWrite(V2, 0);
+  }
+}
+
+int checkDistance()
+{
+  digitalWrite(trigPin1, LOW); // clean/clear trigger
+  delay(10);
+  
+  // release ultrasonic wave for 10ms
+  digitalWrite(trigPin1, HIGH); 
+  delay(10);
+  digitalWrite(trigPin1, LOW);
+  
+  // calculate duration from trigger pin activated
+  // until ultrasonic wave is received
+  duration1 = pulseIn(rcvPin1, HIGH);
+  
+  // calculate distance from said duration
+  distance1 = duration1 * 0.034 / 2;
+  
+  return distance1;
 }
 
 void setup()
@@ -63,9 +83,13 @@ void setup()
   // You can also specify server:
   //Blynk.begin(auth, ssid, pass, "blynk.cloud", 80);
   //Blynk.begin(auth, ssid, pass, IPAddress(192,168,1,100), 8080);
+  
+  // Setup pin to receive ultrasonic sensor output
+  pinMode(trigPin1, OUTPUT);
+  pinMode(rcvPin1, INPUT);
 
   // Setup a function to be called every second
-  timer.setInterval(1000L, myTimerEvent);
+  timer.setInterval(1000L, checkParked);
 }
 
 void loop()
