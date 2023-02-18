@@ -28,17 +28,21 @@ char pass[] = "...";
 BlynkTimer timer;
 
 // Set pins
-const int trigPin1 = 1;
-const int rcvPin1 = 2;
-long duration1;
-int distance1;
+const int trigPin = D1;
+const int rcvPin1 = D5;
+const int rcvPin2 = D6;
+const int rcvPin3 = D7;
+long duration;
+int distance, distance1, distance2, distance3;
 
 // This function sends Arduino's uptime every second to Virtual Pin 2.
 void checkParked()
 {
   // Read ultrasonic sensor to determine whether
   // a car is parked in the slot or not.
-  distance1 = checkDistance();
+  distance1 = checkDistance(rcvPin1);
+  distance2 = checkDistance(rcvPin2);
+  distance3 = checkDistance(rcvPin3);
   
   // distance < 1000cm means there are object
   // blocking the ultrasonic wave travels
@@ -52,26 +56,40 @@ void checkParked()
     // to show that the parking slot is not occupied
     Blynk.virtualWrite(V2, 0);
   }
+  
+  // similar to above functions but for other parking slots
+  if (distance2 < 1000) {
+    Blynk.virtualWrite(V3, 1);
+  } else {
+    Blynk.virtualWrite(V3, 0);
+  }
+  
+  if (distance3 < 1000) {
+    Blynk.virtualWrite(V4, 1);
+  } else {
+    Blynk.virtualWrite(V4, 0);
+  }
 }
 
-int checkDistance()
+int checkDistance(int rcvrPin)
 {
-  digitalWrite(trigPin1, LOW); // clean/clear trigger
+  digitalWrite(trigPin, LOW); // clean/clear trigger
   delay(10);
   
   // release ultrasonic wave for 10ms
-  digitalWrite(trigPin1, HIGH); 
+  digitalWrite(trigPin, HIGH); 
   delay(10);
-  digitalWrite(trigPin1, LOW);
+  digitalWrite(trigPin, LOW);
   
   // calculate duration from trigger pin activated
   // until ultrasonic wave is received
-  duration1 = pulseIn(rcvPin1, HIGH);
+  duration = pulseIn(rcvrPin, HIGH);
+  
   
   // calculate distance from said duration
-  distance1 = duration1 * 0.034 / 2;
+  distance = duration * 0.034 / 2;
   
-  return distance1;
+  return distance;
 }
 
 void setup()
