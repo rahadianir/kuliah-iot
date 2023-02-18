@@ -1,18 +1,9 @@
-/*************************************************************
-
-  This is a simple demo of sending and receiving some data.
-  Be sure to check out other examples!
- *************************************************************/
-
-// Template ID, Device Name and Auth Token are provided by the Blynk.Cloud
-// See the Device Info tab, or Template settings
-#define BLYNK_TEMPLATE_ID           "..."
-#define BLYNK_DEVICE_NAME           "..."
-#define BLYNK_AUTH_TOKEN            "..."
-
-
 // Comment this out to disable prints and save space
 #define BLYNK_PRINT Serial
+
+#define BLYNK_TEMPLATE_ID           ""
+#define BLYNK_TEMPLATE_NAME         ""
+#define BLYNK_AUTH_TOKEN            ""
 
 
 #include <ESP8266WiFi.h>
@@ -22,8 +13,8 @@ char auth[] = BLYNK_AUTH_TOKEN;
 
 // Your WiFi credentials.
 // Set password to "" for open networks.
-char ssid[] = "...";
-char pass[] = "...";
+char ssid[] = "";
+char pass[] = "";
 
 BlynkTimer timer;
 
@@ -47,28 +38,33 @@ void checkParked()
   // distance < 1000cm means there are object
   // blocking the ultrasonic wave travels
   // which means there is car parked in the slot.
-  if (distance1 < 1000) {
+  if (distance1 < 100) {
     // turn on virtual LED in pin V2 if car is parked
     // to show that the parking slot is occupied
-    Blynk.virtualWrite(V2, 1);
+    Blynk.virtualWrite(V1, 1);
   } else {
     // turn off virtual LED in pin V2 if car is not parked
     // to show that the parking slot is not occupied
-    Blynk.virtualWrite(V2, 0);
+    Blynk.virtualWrite(V1, 0);
   }
   
   // similar to above functions but for other parking slots
-  if (distance2 < 1000) {
+  if (distance2 < 100) {
+    Blynk.virtualWrite(V2, 1);
+  } else {
+    Blynk.virtualWrite(V2, 0);
+  }
+  
+  if (distance3 < 100) {
     Blynk.virtualWrite(V3, 1);
   } else {
     Blynk.virtualWrite(V3, 0);
   }
-  
-  if (distance3 < 1000) {
-    Blynk.virtualWrite(V4, 1);
-  } else {
-    Blynk.virtualWrite(V4, 0);
-  }
+
+  Serial.println(distance1);
+  Serial.println(distance2);
+  Serial.println(distance3);
+
 }
 
 int checkDistance(int rcvrPin)
@@ -115,8 +111,5 @@ void loop()
 {
   Blynk.run();
   timer.run();
-  // You can inject your own code or combine it with other sketches.
-  // Check other examples on how to communicate with Blynk. Remember
-  // to avoid delay() function!
 
 }
