@@ -102,10 +102,11 @@ void setup()
   //Blynk.begin(auth, ssid, pass, "blynk.cloud", 80);
   //Blynk.begin(auth, ssid, pass, IPAddress(192,168,1,100), 8080);
   
-  // Setup pin to receive ultrasonic sensor output
-  pinMode(trigPin1, OUTPUT);
+   // Setup pin to receive ultrasonic sensor output
+  pinMode(trigPin, OUTPUT);
   pinMode(rcvPin1, INPUT);
-
+  pinMode(rcvPin2, INPUT);
+  pinMode(rcvPin3, INPUT);
   // Setup a function to be called every second
   timer.setInterval(1000L, checkParked);
 }
